@@ -1,0 +1,47 @@
+<p>{{ puzzle.prompt }}</p>
+<div
+  class="maze-play"
+  data-progress-url="/api/puzzles/{{ puzzle.id }}/progress"
+  data-completed="{{ 'true' if progress_answers.completed | default('') == 'true' else 'false' }}"
+  data-grid='{{ play_payload.grid | tojson }}'
+  data-width="{{ play_payload.settings.width | default(10) }}"
+  data-height="{{ play_payload.settings.height | default(10) }}"
+  data-cell-size="{{ play_payload.settings.cell_size | default(24) }}"
+  data-path='{{ progress_answers.path | default("[]") }}'
+>
+  {% set cell = play_payload.settings.cell_size | default(24) %}
+  {% set width = play_payload.settings.width | default(10) %}
+  {% set height = play_payload.settings.height | default(10) %}
+  <svg
+    class="maze-board"
+    viewBox="0 0 {{ width * cell }} {{ height * cell }}"
+    role="img"
+    aria-label="{{ width }} by {{ height }} maze"
+  >
+    <rect class="maze-paper" x="0" y="0" width="{{ width * cell }}" height="{{ height * cell }}"></rect>
+    <polyline class="maze-trace-path" points=""></polyline>
+    {% for row in play_payload.grid %}
+      {% for maze_cell in row %}
+        {% set x = maze_cell.x * cell %}
+        {% set y = maze_cell.y * cell %}
+        {% if maze_cell.walls.n %}<line x1="{{ x }}" y1="{{ y }}" x2="{{ x + cell }}" y2="{{ y }}"></line>{% endif %}
+        {% if maze_cell.walls.e %}<line x1="{{ x + cell }}" y1="{{ y }}" x2="{{ x + cell }}" y2="{{ y + cell }}"></line>{% endif %}
+        {% if maze_cell.walls.s %}<line x1="{{ x }}" y1="{{ y + cell }}" x2="{{ x + cell }}" y2="{{ y + cell }}"></line>{% endif %}
+        {% if maze_cell.walls.w %}<line x1="{{ x }}" y1="{{ y }}" x2="{{ x }}" y2="{{ y + cell }}"></line>{% endif %}
+      {% endfor %}
+    {% endfor %}
+    <text class="maze-label" x="{{ cell * 0.15 }}" y="{{ cell * 0.68 }}">S</text>
+    <text class="maze-label" x="{{ (width - 0.78) * cell }}" y="{{ (height - 0.32) * cell }}">F</text>
+  </svg>
+  <p class="muted" id="maze-status">
+    {% if progress_answers.completed | default('') == 'true' %}
+      Maze marked complete.
+    {% else %}
+      Drag from S to F. Backtrack over your path to undo.
+    {% endif %}
+  </p>
+  <div class="action-row">
+    <button type="button" class="ghost-button" id="maze-complete">Mark Complete</button>
+    <button type="button" class="ghost-button" id="maze-clear">Clear Path</button>
+  </div>
+</div>

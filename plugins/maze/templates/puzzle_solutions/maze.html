@@ -1,0 +1,27 @@
+{% set cell = puzzle.solution_payload.settings.cell_size | default(24) %}
+{% set width = puzzle.solution_payload.settings.width | default(10) %}
+{% set height = puzzle.solution_payload.settings.height | default(10) %}
+<div class="maze-solution-wrap">
+  <svg
+    class="maze-board maze-solution"
+    viewBox="0 0 {{ width * cell }} {{ height * cell }}"
+    role="img"
+    aria-label="Maze solution"
+  >
+    <rect class="maze-paper" x="0" y="0" width="{{ width * cell }}" height="{{ height * cell }}"></rect>
+    <polyline class="maze-solution-path" points="{{ puzzle.solution_payload.solution_polyline }}"></polyline>
+    {% for row in puzzle.solution_payload.grid %}
+      {% for maze_cell in row %}
+        {% set x = maze_cell.x * cell %}
+        {% set y = maze_cell.y * cell %}
+        {% if maze_cell.walls.n %}<line x1="{{ x }}" y1="{{ y }}" x2="{{ x + cell }}" y2="{{ y }}"></line>{% endif %}
+        {% if maze_cell.walls.e %}<line x1="{{ x + cell }}" y1="{{ y }}" x2="{{ x + cell }}" y2="{{ y + cell }}"></line>{% endif %}
+        {% if maze_cell.walls.s %}<line x1="{{ x }}" y1="{{ y + cell }}" x2="{{ x + cell }}" y2="{{ y + cell }}"></line>{% endif %}
+        {% if maze_cell.walls.w %}<line x1="{{ x }}" y1="{{ y }}" x2="{{ x }}" y2="{{ y + cell }}"></line>{% endif %}
+      {% endfor %}
+    {% endfor %}
+    <text class="maze-label" x="{{ cell * 0.15 }}" y="{{ cell * 0.68 }}">S</text>
+    <text class="maze-label" x="{{ (width - 0.78) * cell }}" y="{{ (height - 0.32) * cell }}">F</text>
+  </svg>
+  <p class="muted">{{ puzzle.solution_payload.path_length }} cells in the solution path.</p>
+</div>
