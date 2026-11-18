@@ -1,0 +1,82 @@
+<p>{{ puzzle.prompt }}</p>
+{% set clues_below = play_payload.settings.clue_placement | default('inline') == 'numbered_below' or play_payload.settings.print_layout | default('alternating') == 'pyramid_clues_below' %}
+<div
+  class="word-pyramid-play"
+  data-progress-url="/api/puzzles/{{ puzzle.id }}/progress"
+  data-answers='{{ progress_answers | tojson }}'
+>
+  <div class="word-pyramid-rows {% if clues_below %}numbered-clues{% endif %}">
+    {% for row in play_payload.rows %}
+      {% set saved_answer = row.given if row.gimme else progress_answers[row.index | string] | default('') %}
+      <div class="word-pyramid-row" style="--row-length: {{ row.length }}">
+        <div class="word-pyramid-answer" aria-label="Row {{ row.number }}, {{ row.length }} letters">
+          <span class="word-pyramid-number">{{ row.number }}</span>
+          <div class="word-pyramid-cells" style="grid-template-columns: repeat({{ row.length }}, 34px)">
+            {% for cell_index in range(row.length) %}
+              <input
+                autocomplete="off"
+                inputmode="text"
+                maxlength="1"
+                data-row="{{ row.index }}"
+                data-cell="{{ cell_index }}"
+                data-key="{{ row.index }}:{{ cell_index }}"
+                data-gimme="{{ 'true' if row.gimme else 'false' }}"
+                value="{{ saved_answer[cell_index] if saved_answer | length > cell_index else '' }}"
+                aria-label="Row {{ row.number }}, letter {{ cell_index + 1 }}"
+                {% if row.gimme %}disabled{% endif %}
+              >
+            {% endfor %}
+          </div>
+        </div>
+        {% if not clues_below %}
+          <div class="word-pyramid-clue">
+            <span>{{ row.clue }}</span>
+            <span class="word-pyramid-row-actions">
+              <small>{{ row.length }} letters</small>
+              {% if row.gimme %}<small class="gimme-pill">Gimme</small>{% endif %}
+              {% if row.clues and row.clues | length > 1 %}
+                <button type="button" class="ghost-button more-pyramid-clue" data-row="{{ row.index }}">More clues</button>
+                <span class="pyramid-clue-steps" hidden>
+                  {% for extra_clue in row.clues[1:] %}
+                    <small hidden>{{ extra_clue }}</small>
+                  {% endfor %}
+                </span>
+              {% endif %}
+              <button type="button" class="ghost-button reveal-pyramid-row" data-row="{{ row.index }}">Reveal row</button>
+            </span>
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  {% if clues_below %}
+    <section class="word-pyramid-clue-list">
+      <h2>Clues</h2>
+      <ol>
+        {% for row in play_payload.rows %}
+          <li value="{{ row.number }}">
+            <span>{{ row.clue }}</span>
+            <span class="word-pyramid-row-actions">
+              <small>{{ row.length }} letters</small>
+              {% if row.gimme %}<small class="gimme-pill">Gimme</small>{% endif %}
+              {% if row.clues and row.clues | length > 1 %}
+                <button type="button" class="ghost-button more-pyramid-clue" data-row="{{ row.index }}">More clues</button>
+                <span class="pyramid-clue-steps" hidden>
+                  {% for extra_clue in row.clues[1:] %}
+                    <small hidden>{{ extra_clue }}</small>
+                  {% endfor %}
+                </span>
+              {% endif %}
+              <button type="button" class="ghost-button reveal-pyramid-row" data-row="{{ row.index }}">Reveal row</button>
+            </span>
+          </li>
+        {% endfor %}
+      </ol>
+    </section>
+  {% endif %}
+  <p class="muted" id="word-pyramid-status">Fill the pyramid from top to bottom.</p>
+  <div class="action-row">
+    <button type="button" class="ghost-button" id="word-pyramid-check">Check</button>
+    <button type="button" class="ghost-button" id="word-pyramid-clear">Clear Pyramid</button>
+  </div>
+</div>

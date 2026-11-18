@@ -1,0 +1,8 @@
+<div class="solution-list">
+  {% for row in puzzle.solution_payload.rows %}
+    <div>
+      <strong>{{ row.number }}. {{ row.answer }}</strong>
+      <small>{{ row.clue }} / {{ row.length }} letters</small>
+    </div>
+  {% endfor %}
+</div>

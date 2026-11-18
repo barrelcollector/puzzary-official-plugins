@@ -1,0 +1,18 @@
+<p>{{ puzzle.prompt }}</p>
+<div class="minesweeper-play"
+     data-width="{{ play_payload.width }}" data-height="{{ play_payload.height }}"
+     data-mines="{{ play_payload.mine_count }}" data-state='{{ progress_payload | tojson }}'>
+  <div class="minesweeper-toolbar" role="group" aria-label="Minesweeper tools">
+    <button type="button" data-tool="reveal" aria-pressed="true">Reveal</button>
+    <button type="button" class="ghost-button" data-tool="flag" aria-pressed="false">Flag</button>
+    <span class="minesweeper-counter" aria-label="Flags remaining"><strong data-flags>{{ play_payload.mine_count }}</strong> flags left</span>
+  </div>
+  <div class="minesweeper-scroll" tabindex="-1">
+    <div class="minesweeper-board" role="grid" aria-label="Minesweeper board"></div>
+  </div>
+  <p class="muted minesweeper-status" role="status" aria-live="polite">Choose a cell to begin.</p>
+  <div class="action-row">
+    <button type="button" class="ghost-button minesweeper-hint">Reveal a safe cell</button>
+    <button type="button" class="ghost-button minesweeper-restart">Restart board</button>
+  </div>
+</div>

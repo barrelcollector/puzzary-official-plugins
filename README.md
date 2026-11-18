@@ -7,8 +7,19 @@ browser assets.
 
 ## Available packages
 
-- **Maze** (`plugins/maze`) - maze generation, interactive tracing, manual
-  editing, group play, and solution display.
+- Cross Equations (`plugins/cross_equations`)
+- Crossword (`plugins/crossword`)
+- Maze (`plugins/maze`)
+- Minesweeper (`plugins/minesweeper`)
+- Nonogram (`plugins/nonogram`)
+- Spell It (`plugins/spell_it`)
+- Sudoku (`plugins/sudoku`)
+- Takuzu (`plugins/takuzu`)
+- Word Pyramid (`plugins/word_pyramid`)
+- Word Search (`plugins/word_search`)
+
+Each package retains the built-in type's stable slug and payload contract, so it
+can replace the bundled implementation without invalidating saved puzzles.
 
 ## Install
 

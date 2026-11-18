@@ -1,0 +1,13 @@
+{
+  "schema": "puzzary.plugin.v1",
+  "api_version": "1",
+  "slug": "takuzu",
+  "name": "Takuzu",
+  "version": "0.1.0",
+  "entrypoint": "plugin.py",
+  "templates": "templates",
+  "static": "static",
+  "replaces_builtin": true,
+  "homepage": "https://github.com/barrelcollector/puzzary-official-plugins/tree/main/plugins/takuzu"
+}
+

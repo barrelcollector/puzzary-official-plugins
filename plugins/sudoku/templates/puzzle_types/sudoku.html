@@ -1,0 +1,66 @@
+<p>{{ puzzle.prompt }}</p>
+{% set progressive = play_payload.settings.progressive | default({}) %}
+<div
+  class="sudoku-play"
+  data-progress-url="/api/puzzles/{{ puzzle.id }}/progress"
+  data-answers='{{ progress_answers | tojson }}'
+  data-size="{{ play_payload.settings.grid_size | default(9) }}"
+  data-box-rows="{{ play_payload.settings.box_rows | default(3) }}"
+  data-box-cols="{{ play_payload.settings.box_cols | default(3) }}"
+  data-check-mode="{{ play_payload.settings.check_mode | default('check_puzzle') }}"
+  data-progressive='{{ progressive | tojson }}'
+  data-progressive-completed='{{ progress_payload.get("progressive_completed", []) | tojson }}'
+  data-progressive-authors='{{ progress_payload.get("progressive_authors", {}) | tojson }}'
+>
+  {% if progressive.get('enabled') %}
+    <section class="sudoku-progressive" aria-labelledby="sudoku-progressive-title">
+      <div>
+        <strong id="sudoku-progressive-title">Progressive solve</strong>
+        <span class="muted" id="sudoku-progressive-summary" role="status" aria-live="polite"></span>
+      </div>
+      <div class="sudoku-unit-list" id="sudoku-unit-list" role="list" aria-label="Sudoku unit progress"></div>
+      {% if progressive.get('validation') == 'manual' %}
+        <button type="button" class="ghost-button" id="sudoku-check-units">Check Units</button>
+      {% endif %}
+    </section>
+  {% endif %}
+  <div
+    class="sudoku-grid"
+    style="--sudoku-size: {{ play_payload.settings.grid_size | default(9) }}; --box-rows: {{ play_payload.settings.box_rows | default(3) }}; --box-cols: {{ play_payload.settings.box_cols | default(3) }}"
+  >
+    {% for row in play_payload.grid %}
+      {% set y = loop.index0 %}
+      {% for value in row %}
+        {% set x = loop.index0 %}
+        {% set cell_key = x ~ ',' ~ y %}
+        {% set box_cols = play_payload.settings.box_cols | default(3) %}
+        {% set box_rows = play_payload.settings.box_rows | default(3) %}
+        {% set size = play_payload.settings.grid_size | default(9) %}
+        <label
+          class="sudoku-cell"
+          data-x="{{ x }}"
+          data-y="{{ y }}"
+          style="{% if (x + 1) % box_cols == 0 and x + 1 < size %}border-right-width: 2px;{% endif %}{% if (y + 1) % box_rows == 0 and y + 1 < size %}border-bottom-width: 2px;{% endif %}"
+        >
+          <input
+            aria-label="Row {{ y + 1 }}, column {{ x + 1 }}"
+            inputmode="numeric"
+            pattern="[1-9]"
+            maxlength="1"
+            autocomplete="off"
+            data-key="{{ cell_key }}"
+            data-given="{{ 'true' if value else 'false' }}"
+            {% if progressive.get('enabled') %}aria-describedby="sudoku-progressive-summary"{% endif %}
+            value="{{ value if value else progress_answers[cell_key] | default('') }}"
+            {% if value %}disabled{% endif %}
+          >
+        </label>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <p class="muted" id="sudoku-status">Fill the grid with digits 1 through {{ play_payload.settings.grid_size | default(9) }}.</p>
+  <div class="action-row">
+    <button type="button" class="ghost-button" id="sudoku-check">Check</button>
+    <button type="button" class="ghost-button" id="sudoku-clear">Clear Grid</button>
+  </div>
+</div>

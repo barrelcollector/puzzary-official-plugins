@@ -1,0 +1,35 @@
+<style>
+.nonogram-scroll { max-width:100%; overflow-x:auto; }
+.nonogram-board { border-collapse:collapse; table-layout:fixed; width:100%; max-width:640px; margin:12px 0; color:#171717; }
+.nonogram-board th,.nonogram-board td { padding:0; text-align:center; border:1px solid #777; }
+.nonogram-board .nonogram-corner { border:0; background:white; width:20%; }
+.nonogram-board th { background:#f0f2f1; font-size:12px; font-weight:700; }
+.nonogram-column { display:flex; flex-direction:column; justify-content:flex-end; align-items:center; gap:2px; min-height:65px; padding:4px 0; }
+.nonogram-row { display:flex; justify-content:flex-end; gap:3px; padding:0 2px; flex-wrap:nowrap; font-size:10px; line-height:1; }
+.nonogram-board th.confirmed { background:#dceee8; color:#1d7465; text-decoration:line-through; }
+.nonogram-board td { background:white; aspect-ratio:1; }
+.nonogram-cell { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1; padding:0; min-width:0; border:0; border-radius:0; background:white; color:#111; font-size:14px; line-height:1; cursor:pointer; touch-action:none; user-select:none; }
+.nonogram-cell:hover { background:#edf2f1; }
+.nonogram-cell[data-value="1"],.nonogram-cell[data-value="1"]:hover { background:#202020; color:white; }
+.nonogram-cell[data-value="0"] { color:#555; }
+.nonogram-cell.given { box-shadow:inset 0 0 0 2px #248575; }
+.nonogram-cell.incorrect { box-shadow:inset 0 0 0 3px #c53442; }
+.nonogram-cell:focus-visible { outline:3px solid #248575; outline-offset:-3px; }
+.nonogram-board tbody tr:nth-child(5n) td { border-bottom:2px solid #111; }
+.nonogram-board td:nth-child(5n+1) { border-right:2px solid #111; }
+.nonogram-tools { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.nonogram-tools button { width:auto; flex:0 0 auto; background:white; color:#1d7465; border:1px solid #b8c5c1; }
+.nonogram-tools button[aria-pressed="true"] { background:#1d7465; color:white; }
+@media print { .nonogram-scroll { overflow:visible; } .nonogram-board { max-width:640px; break-inside:avoid; } .nonogram-cell { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+</style>
+<div class="nonogram-scroll">
+<table class="nonogram-board" aria-label="Nonogram grid">
+  <thead><tr><th class="nonogram-corner" style="width:{{ (ng.row_clues | map('length') | max) * 9 + 4 }}px"></th>{% for clues in ng.column_clues %}<th scope="col"><div class="nonogram-column">{% for n in clues %}<span>{{ n }}</span>{% endfor %}</div></th>{% endfor %}</tr></thead>
+  <tbody>{% for clues in ng.row_clues %}{% set y=loop.index0 %}<tr>
+    <th scope="row"><div class="nonogram-row">{% for n in clues %}<span>{{ n }}</span>{% endfor %}</div></th>
+    {% for x in range(ng.size) %}{% set key=x ~ ',' ~ y %}{% set value=ng.givens.get(key, '') %}
+    <td>{% if ng_interactive %}<button type="button" class="nonogram-cell {% if key in ng.givens %}given{% endif %}" data-key="{{ key }}" data-value="{{ value }}" aria-label="Row {{ y+1 }}, column {{ x+1 }}" {% if key in ng.givens %}disabled{% endif %}>{{ 'X' if value == '0' else '' }}</button>
+    {% else %}<span class="nonogram-cell" data-value="{{ value }}">{{ 'X' if value == '0' else '' }}</span>{% endif %}</td>
+    {% endfor %}</tr>{% endfor %}</tbody>
+</table>
+</div>

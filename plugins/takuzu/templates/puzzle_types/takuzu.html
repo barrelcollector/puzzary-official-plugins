@@ -1,0 +1,13 @@
+<p>{{ puzzle.prompt }}</p>
+<div class="takuzu-play" data-progress-url="/api/puzzles/{{ puzzle.id }}/progress" data-answers='{{ progress_answers | tojson }}' data-auto-confirm="{{ 'true' if play_payload.settings.auto_confirm_lines else 'false' }}">
+  <div class="takuzu-tools" role="group" aria-label="Cell marking mode">
+    <button type="button" data-mode="cycle" aria-pressed="true" title="Cycle blank, zero, one">Cycle</button>
+    <button type="button" data-mode="0" aria-pressed="false" title="Set zero">0</button>
+    <button type="button" data-mode="1" aria-pressed="false" title="Set one">1</button>
+    <button type="button" data-mode="" aria-pressed="false" title="Erase cells">&#9003;</button>
+  </div>
+  {% set tk=play_payload %}{% set tk_interactive=true %}{% include 'puzzle_types/takuzu_board.html' %}
+  <p class="muted takuzu-status" role="status" aria-live="polite"></p>
+  <div class="action-row"><button type="button" class="ghost-button takuzu-check">Check</button><button type="button" class="ghost-button takuzu-hint">Hint</button><button type="button" class="ghost-button takuzu-clear">Clear Grid</button></div>
+</div>
+<script src="/plugins/takuzu/static/takuzu.js?v=5" defer></script>

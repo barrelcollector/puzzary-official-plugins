@@ -1,0 +1,23 @@
+<style>
+.takuzu-board {width:100%;max-width:520px;table-layout:fixed;border-collapse:collapse;margin:12px 0;color:#171717;}
+.takuzu-board th {height:24px;padding:0;font-size:12px;background:#f2f3f1;color:#555;}
+.takuzu-board thead th:first-child {width:24px;}
+.takuzu-board td {padding:0;border:1px solid #555;background:white;}
+.takuzu-cell {display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:1;min-width:0;padding:0;border:0;border-radius:0;background:white;color:#171717;font-size:22px;line-height:1;touch-action:none;user-select:none;}
+.takuzu-cell.given {background:#e9edeb;font-weight:700;color:#171717;opacity:1;}
+.takuzu-board th.confirmed {background:#dceee8;color:#1d7465;text-decoration:line-through;}
+.takuzu-cell.incorrect {box-shadow:inset 0 0 0 3px #c53442;}
+.takuzu-cell:focus-visible {outline:3px solid #248575;outline-offset:-3px;}
+.takuzu-tools {display:flex;gap:8px;flex-wrap:wrap;}
+.takuzu-tools button {width:auto;flex:0 0 auto;background:white;color:#1d7465;border:1px solid #b8c5c1;}
+.takuzu-tools button[aria-pressed="true"] {background:#1d7465;color:white;}
+@media print {.takuzu-board{max-width:520px;break-inside:avoid;} .takuzu-cell{font-size:16px;print-color-adjust:exact;-webkit-print-color-adjust:exact;}}
+</style>
+<table class="takuzu-board" aria-label="Takuzu grid">
+  <thead><tr><th></th>{% for x in range(tk.size) %}<th scope="col">{{ x+1 }}</th>{% endfor %}</tr></thead>
+  <tbody>{% for y in range(tk.size) %}<tr><th scope="row">{{ y+1 }}</th>
+    {% for x in range(tk.size) %}{% set key=x ~ ',' ~ y %}{% set value=tk.givens.get(key,'') %}
+      <td>{% if tk_interactive %}<button type="button" class="takuzu-cell {% if key in tk.givens %}given{% endif %}" data-key="{{ key }}" data-value="{{ value }}" aria-label="Row {{ y+1 }}, column {{ x+1 }}: {{ value or 'blank' }}" {% if key in tk.givens %}disabled{% endif %}>{{ value }}</button>
+      {% else %}<span class="takuzu-cell {% if key in tk.givens %}given{% endif %}">{{ value }}</span>{% endif %}</td>
+    {% endfor %}</tr>{% endfor %}</tbody>
+</table>

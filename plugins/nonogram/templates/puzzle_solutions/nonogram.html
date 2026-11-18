@@ -1,0 +1,5 @@
+{% set ng=puzzle.play_payload.copy() %}
+{% set solved=namespace(givens={}) %}
+{% for row in puzzle.solution_payload.grid %}{% set y=loop.index0 %}{% for v in row %}{% set _=solved.givens.update({(loop.index0 ~ ',' ~ y): v|string}) %}{% endfor %}{% endfor %}
+{% set _=ng.update({'givens':solved.givens}) %}{% set ng_interactive=false %}
+{% include 'puzzle_types/nonogram_board.html' %}

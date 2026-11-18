@@ -1,0 +1,94 @@
+<p>{{ puzzle.prompt }}</p>
+{% set gimme_cells = play_payload.gimmes.cells | default({}) %}
+<div
+  class="crossword-play"
+  data-progress-url="/api/puzzles/{{ puzzle.id }}/progress"
+  data-answers='{{ progress_answers | tojson }}'
+  data-entries='{{ play_payload.clues | tojson }}'
+  data-settings='{{ play_payload.settings | default({}) | tojson }}'
+>
+  <div
+    class="crossword-grid"
+    style="--grid-size: {{ play_payload.grid[0] | length if play_payload.grid else 1 }}"
+  >
+    {% for row in play_payload.grid %}
+      {% set y = loop.index0 %}
+      {% for cell in row %}
+        {% set x = loop.index0 %}
+        {% set cell_key = x ~ ',' ~ y %}
+        {% if cell.open %}
+          <label class="crossword-cell" data-x="{{ x }}" data-y="{{ y }}">
+            {% if cell.number %}<span>{{ cell.number }}</span>{% endif %}
+            <input
+              aria-label="Cell {{ x + 1 }}, {{ y + 1 }}"
+              maxlength="1"
+              autocomplete="off"
+              inputmode="text"
+              data-key="{{ cell_key }}"
+              data-gimme="{{ 'true' if cell_key in gimme_cells else 'false' }}"
+              value="{{ gimme_cells[cell_key] | default(progress_answers[cell_key] | default('')) }}"
+              {% if cell_key in gimme_cells %}disabled{% endif %}
+            >
+          </label>
+        {% else %}
+          <span class="crossword-spacer" aria-hidden="true"></span>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <p class="muted" id="crossword-status">Fill the grid from the clues.</p>
+  <div class="action-row">
+    <button type="button" class="ghost-button" id="crossword-check">Check</button>
+    <button type="button" class="ghost-button" id="crossword-clear">Clear Grid</button>
+  </div>
+</div>
+<section class="clue-board">
+  <div>
+    <h2>Across</h2>
+    <ol class="clue-list">
+      {% for clue in play_payload.clues if clue.direction == "across" %}
+        <li value="{{ clue.number }}">
+          <span class="crossword-clue-text">{{ clue.clue }}</span>
+          {% if clue.clues and clue.clues | length > 1 %}
+            <button type="button" class="ghost-button more-clue" data-entry-number="{{ clue.number }}" data-entry-direction="{{ clue.direction }}">More clues</button>
+            <ul class="clue-steps" hidden>
+              {% for extra_clue in clue.clues[1:] %}
+                <li hidden><strong>Clue {{ loop.index + 1 }}:</strong> <span>{{ extra_clue }}</span></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <small>{{ clue.length }} letters</small>
+          {% if clue.gimme %}<small class="gimme-pill">Gimme</small>{% endif %}
+          {% if play_payload.settings.check_mode | default('whole_puzzle') == 'per_word' %}
+            <button type="button" class="ghost-button check-entry" data-entry-number="{{ clue.number }}" data-entry-direction="{{ clue.direction }}">Check word</button>
+          {% endif %}
+          <button type="button" class="ghost-button reveal-entry" data-entry-number="{{ clue.number }}" data-entry-direction="{{ clue.direction }}" {% if clue.gimme %}disabled{% endif %}>Reveal word</button>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+  <div>
+    <h2>Down</h2>
+    <ol class="clue-list">
+      {% for clue in play_payload.clues if clue.direction == "down" %}
+        <li value="{{ clue.number }}">
+          <span class="crossword-clue-text">{{ clue.clue }}</span>
+          {% if clue.clues and clue.clues | length > 1 %}
+            <button type="button" class="ghost-button more-clue" data-entry-number="{{ clue.number }}" data-entry-direction="{{ clue.direction }}">More clues</button>
+            <ul class="clue-steps" hidden>
+              {% for extra_clue in clue.clues[1:] %}
+                <li hidden><strong>Clue {{ loop.index + 1 }}:</strong> <span>{{ extra_clue }}</span></li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+          <small>{{ clue.length }} letters</small>
+          {% if clue.gimme %}<small class="gimme-pill">Gimme</small>{% endif %}
+          {% if play_payload.settings.check_mode | default('whole_puzzle') == 'per_word' %}
+            <button type="button" class="ghost-button check-entry" data-entry-number="{{ clue.number }}" data-entry-direction="{{ clue.direction }}">Check word</button>
+          {% endif %}
+          <button type="button" class="ghost-button reveal-entry" data-entry-number="{{ clue.number }}" data-entry-direction="{{ clue.direction }}" {% if clue.gimme %}disabled{% endif %}>Reveal word</button>
+        </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>

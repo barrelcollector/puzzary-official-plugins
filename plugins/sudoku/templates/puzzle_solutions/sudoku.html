@@ -1,0 +1,7 @@
+<div class="sudoku-grid sudoku-solution">
+  {% for row in puzzle.solution_payload.grid %}
+    {% for value in row %}
+      <span class="sudoku-cell"><strong>{{ value }}</strong></span>
+    {% endfor %}
+  {% endfor %}
+</div>

@@ -1,0 +1,7 @@
+<p>{{ puzzle.prompt }}</p>
+<div class="spell-it-play" data-api="/api/puzzles/{{ puzzle.id }}/spell-it" data-progress-url="/api/puzzles/{{ puzzle.id }}/progress">
+  <script type="application/json" class="spell-data">{{ play_payload | tojson }}</script>
+  <nav class="spell-navigation" aria-label="Word series"></nav>
+  <div class="spell-stage"></div>
+  <p class="spell-status" role="status" aria-live="polite"></p>
+</div>

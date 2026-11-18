@@ -1,0 +1,22 @@
+{% set solution_settings = puzzle.play_payload.settings if puzzle.play_payload and puzzle.play_payload.settings else {} %}
+<div
+  class="cross-equations-grid cross-equations-solution"
+  style="--cross-equations-size: {{ solution_settings.rendered_size | default(puzzle.solution_payload.cells | length) }}; --cross-equations-cell: {% if solution_settings.grid_size | default(3) >= 5 %}38px{% elif solution_settings.grid_size | default(3) >= 4 %}44px{% else %}52px{% endif %}"
+>
+  {% for row in puzzle.solution_payload.cells %}
+    {% for cell in row %}
+      {% if cell.type == "number" %}
+        <span class="cross-equations-cell number-cell"><strong>{{ cell.value }}</strong></span>
+      {% elif cell.type == "symbol" %}
+        <span class="cross-equations-cell symbol-cell">{{ cell.value }}</span>
+      {% else %}
+        <span class="cross-equations-cell spacer-cell"></span>
+      {% endif %}
+    {% endfor %}
+  {% endfor %}
+</div>
+<ol class="solution-list">
+  {% for equation in puzzle.solution_payload.equations %}
+    <li>{{ equation.label }}: {{ equation.equation }}</li>
+  {% endfor %}
+</ol>

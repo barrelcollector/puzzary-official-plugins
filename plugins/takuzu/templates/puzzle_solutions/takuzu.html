@@ -1,0 +1,3 @@
+{% set ns=namespace(givens={}) %}
+{% for row in puzzle.solution_payload.grid %}{% set y=loop.index0 %}{% for v in row %}{% set _=ns.givens.update({(loop.index0 ~ ',' ~ y):v|string}) %}{% endfor %}{% endfor %}
+{% set tk={'size':puzzle.solution_payload.grid | length,'givens':ns.givens} %}{% set tk_interactive=false %}{% include 'puzzle_types/takuzu_board.html' %}

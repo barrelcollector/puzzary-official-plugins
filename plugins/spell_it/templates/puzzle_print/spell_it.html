@@ -1,0 +1,9 @@
+<div class="spell-print">
+{% for entry in print_payload.entries %}
+  <section class="spell-print-entry">
+    <p><strong>{{ loop.index }}.</strong> {{ entry.definition }}</p>
+    <div class="spell-slots">{% for slot in entry.slots %}<span class="spell-slot {% if slot is none %}blank{% elif slot == ' ' %}space{% else %}given{% endif %}">{{ slot if slot is not none else '' }}</span>{% endfor %}</div>
+    {% if entry.bank %}<p class="spell-print-bank">{% for letter in entry.bank %}<span>{{ letter }}</span> {% endfor %}</p>{% endif %}
+  </section>
+{% endfor %}
+</div>

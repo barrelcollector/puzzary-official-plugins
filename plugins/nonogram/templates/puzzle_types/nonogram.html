@@ -1,0 +1,12 @@
+<p>{{ puzzle.prompt }}</p>
+<div class="nonogram-play" data-progress-url="/api/puzzles/{{ puzzle.id }}/progress" data-answers='{{ progress_answers | tojson }}' data-auto-confirm-rows="{{ 'true' if play_payload.settings.auto_confirm_rows | default(true) else 'false' }}" data-auto-confirm-columns="{{ 'true' if play_payload.settings.auto_confirm_columns | default(true) else 'false' }}">
+  <div class="nonogram-tools" role="group" aria-label="Cell marking mode">
+    <button type="button" data-mode="1" aria-pressed="true" title="Fill cells">&#9632; Fill</button>
+    <button type="button" data-mode="0" aria-pressed="false" title="Mark cells empty">&#215; Empty</button>
+    <button type="button" data-mode="" aria-pressed="false" title="Erase marks">Erase</button>
+  </div>
+  {% set ng=play_payload %}{% set ng_interactive=true %}{% include 'puzzle_types/nonogram_board.html' %}
+  <p class="muted nonogram-status" role="status" aria-live="polite"></p>
+  <div class="action-row"><button type="button" class="ghost-button nonogram-check">Check</button><button type="button" class="ghost-button nonogram-clear">Clear Grid</button></div>
+</div>
+<script src="/plugins/nonogram/static/nonogram.js?v=8" defer></script>

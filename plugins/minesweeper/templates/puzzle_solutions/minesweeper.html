@@ -1,0 +1,9 @@
+{% set ms=puzzle.solution_payload %}
+<p><strong>{{ ms.mine_count }} mines</strong> on a {{ ms.width }} by {{ ms.height }} board.</p>
+<div class="minesweeper-scroll">
+  <div class="minesweeper-board minesweeper-solution" style="--minesweeper-columns:{{ ms.width }}" role="img" aria-label="Minesweeper solution">
+    {% for y in range(ms.height) %}{% for x in range(ms.width) %}{% set key=x ~ ',' ~ y %}
+      <span class="minesweeper-cell is-revealed {% if key in ms.mines %}is-mine{% endif %}">{{ '●' if key in ms.mines else (ms.counts.get(key) if ms.counts.get(key) != '0' else '') }}</span>
+    {% endfor %}{% endfor %}
+  </div>
+</div>

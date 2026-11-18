@@ -1,0 +1,16 @@
+<div class="solution-list">
+  {% for placement in puzzle.solution_payload.placements %}
+    <div><strong>{{ placement.word }}</strong><small>{{ placement.start | join(", ") }} / {{ placement.direction | join(", ") }}</small></div>
+  {% endfor %}
+</div>
+{% if puzzle.solution_payload.decoys %}
+<h3>Intentional decoys</h3>
+<div class="solution-list">
+  {% for decoy in puzzle.solution_payload.decoys %}
+    <div>
+      <strong>{{ decoy.text }}</strong>
+      <small>{{ 'False word' if decoy.kind == 'false_word' else 'Near miss for ' ~ decoy.target_word ~ ' (omits ' ~ decoy.omitted_letter ~ ')' }} / {{ decoy.start | join(", ") }} / {{ decoy.direction | join(", ") }}</small>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}

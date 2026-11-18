@@ -1,0 +1,5 @@
+<div class="solution-list">
+  {% for entry in puzzle.solution_payload.entries %}
+    <div><strong>{{ entry.number }} {{ entry.direction | title }}: {{ entry.answer }}</strong><small>{{ entry.clue }}</small></div>
+  {% endfor %}
+</div>

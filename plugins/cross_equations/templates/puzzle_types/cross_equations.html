@@ -1,0 +1,50 @@
+<p>{{ puzzle.prompt }}</p>
+<div
+  class="cross-equations-play"
+  data-progress-url="/api/puzzles/{{ puzzle.id }}/progress"
+  data-answers='{{ progress_answers | tojson }}'
+  data-equations='{{ play_payload.equations | tojson }}'
+  data-value-max="{{ play_payload.settings.result_max | default(9) }}"
+  data-grid-size="{{ play_payload.settings.grid_size | default(3) }}"
+>
+  <div
+    class="cross-equations-grid"
+    style="--cross-equations-size: {{ play_payload.settings.rendered_size | default(play_payload.cells | length) }}; --cross-equations-cell: {% if play_payload.settings.grid_size | default(3) >= 5 %}44px{% elif play_payload.settings.grid_size | default(3) >= 4 %}52px{% else %}62px{% endif %}"
+  >
+    {% for row in play_payload.cells %}
+      {% for cell in row %}
+        {% if cell.type == "number" %}
+          <label class="cross-equations-cell number-cell {% if cell.given %}given{% endif %}" data-key="{{ cell.key }}">
+            <input
+              aria-label="Cell {{ cell.key }}"
+              inputmode="numeric"
+              pattern="-?[0-9]+"
+              maxlength="4"
+              autocomplete="off"
+              data-key="{{ cell.key }}"
+              value="{{ cell.value if cell.given else progress_answers[cell.key] | default('') }}"
+              {% if cell.given %}disabled{% endif %}
+            >
+          </label>
+        {% elif cell.type == "symbol" %}
+          <span class="cross-equations-cell symbol-cell">{{ cell.value }}</span>
+        {% else %}
+          <span class="cross-equations-cell spacer-cell"></span>
+        {% endif %}
+      {% endfor %}
+    {% endfor %}
+  </div>
+  <p class="muted" id="cross-equations-status">Fill the blank number cells.</p>
+  <div class="action-row">
+    <button type="button" class="ghost-button" id="cross-equations-check">Check</button>
+    <button type="button" class="ghost-button" id="cross-equations-clear">Clear Grid</button>
+  </div>
+  <section class="equation-list">
+    <h2>Equations</h2>
+    <div>
+      {% for equation in play_payload.equations %}
+        <span>{{ equation.label }}</span>
+      {% endfor %}
+    </div>
+  </section>
+</div>
