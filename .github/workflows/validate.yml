@@ -13,4 +13,8 @@ jobs:
         with:
           python-version: "3.13"
       - run: python scripts/build.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: official-plugin-packages
+          path: dist/
 
