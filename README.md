@@ -38,5 +38,19 @@ slug matches the manifest. Template folders use the same `puzzle_types/`,
 `puzzle_solutions/`, and `puzzle_print/` paths as core.
 
 Run `python scripts/build.py` to validate packages and create release ZIPs in
-`dist/`.
+`dist/`. Builds are deterministic. Every ZIP contains Apache-2.0 `LICENSE` and
+`NOTICE` files, and `dist/SHA256SUMS` records all archive digests.
+
+## Compatibility
+
+Official plugin release 0.1.1 targets Puzzary plugin API version 1 and the
+Puzzary 0.1.0 public beta line. Each archive can replace the corresponding
+bundled fallback without changing saved puzzle slugs or payload contracts.
+
+## License
+
+Puzzary official plugins are licensed under the
+[Apache License 2.0](LICENSE). Copyright 2026 Puzzary contributors. See
+[NOTICE](NOTICE) for attribution. The license does not grant permission to use
+project names or branding beyond describing the origin of the software.
 
