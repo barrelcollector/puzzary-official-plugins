@@ -12,6 +12,12 @@ PLUGINS = ROOT / "plugins"
 DIST = ROOT / "dist"
 LICENSE_FILES = (ROOT / "LICENSE", ROOT / "NOTICE")
 FIXED_ZIP_TIME = (2026, 1, 1, 0, 0, 0)
+TEXT_SUFFIXES = {"", ".html", ".js", ".json", ".md", ".py", ".txt", ".yaml", ".yml"}
+
+
+def normalized_bytes(source: Path) -> bytes:
+    data = source.read_bytes()
+    return data.replace(b"\r\n", b"\n") if source.suffix.lower() in TEXT_SUFFIXES else data
 
 
 def add_file(bundle: zipfile.ZipFile, archive_name: str, data: bytes) -> None:
@@ -27,9 +33,9 @@ def build_archive(package: Path, archive: Path) -> None:
             if source.suffix in {".pyc", ".pyo"} or "__pycache__" in source.parts:
                 continue
             archive_name = f"{package.name}/{source.relative_to(package).as_posix()}"
-            add_file(bundle, archive_name, source.read_bytes())
+            add_file(bundle, archive_name, normalized_bytes(source))
         for source in LICENSE_FILES:
-            add_file(bundle, f"{package.name}/{source.name}", source.read_bytes())
+            add_file(bundle, f"{package.name}/{source.name}", normalized_bytes(source))
 
 
 def main() -> None:
