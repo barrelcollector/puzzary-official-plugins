@@ -1,0 +1,19 @@
+{
+  "schema": "puzzary.plugin.v1",
+  "api_version": "1",
+  "package_type": "content",
+  "slug": "dictionary_content",
+  "name": "English Dictionary Content",
+  "version": "0.1.0",
+  "license": "CC-BY-SA-4.0 AND WordNet-3.0",
+  "description": "Licensed English dictionary expansion with verified provenance and reproducible build tooling.",
+  "content_packs": [
+    {
+      "id": "english-wordnet-5000-v1",
+      "kind": "dictionary",
+      "directory": "content_packs/english-wordnet-5000-v1",
+      "manifest": "content_packs/english-wordnet-5000-v1/manifest.json"
+    }
+  ],
+  "homepage": "https://github.com/barrelcollector/puzzary-official-plugins/tree/main/plugins/dictionary_content"
+}

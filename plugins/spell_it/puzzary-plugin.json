@@ -3,12 +3,11 @@
   "api_version": "1",
   "slug": "spell_it",
   "name": "Spell It",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "Apache-2.0",
   "entrypoint": "plugin.py",
   "templates": "templates",
   "static": "static",
-  "replaces_builtin": true,
   "homepage": "https://github.com/barrelcollector/puzzary-official-plugins/tree/main/plugins/spell_it"
 }
 

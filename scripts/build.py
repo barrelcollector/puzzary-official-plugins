@@ -49,10 +49,21 @@ def main() -> None:
         assert manifest["schema"] == "puzzary.plugin.v1"
         assert manifest["api_version"] == "1"
         assert manifest["slug"] == package.name
-        assert manifest["license"] == "Apache-2.0"
-        entrypoint = package / manifest["entrypoint"]
-        assert entrypoint.is_file()
-        compile(entrypoint.read_text(encoding="utf-8"), str(entrypoint), "exec")
+        package_type = manifest.get("package_type", "puzzle")
+        assert package_type in {"puzzle", "content"}
+        if package_type == "puzzle":
+            assert manifest["license"] == "Apache-2.0"
+            entrypoint = package / manifest["entrypoint"]
+            assert entrypoint.is_file()
+            compile(entrypoint.read_text(encoding="utf-8"), str(entrypoint), "exec")
+        else:
+            packs = manifest.get("content_packs")
+            assert isinstance(packs, list) and packs
+            for pack in packs:
+                directory = package / pack["directory"]
+                pack_manifest = package / pack["manifest"]
+                assert directory.is_dir() and pack_manifest.is_file()
+                assert directory in pack_manifest.resolve().parents
         if manifest.get("templates"):
             assert (package / manifest["templates"]).is_dir()
         if manifest.get("static"):

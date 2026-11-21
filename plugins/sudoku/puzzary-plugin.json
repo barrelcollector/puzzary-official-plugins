@@ -8,7 +8,6 @@
   "entrypoint": "plugin.py",
   "templates": "templates",
   "static": "static",
-  "replaces_builtin": true,
   "homepage": "https://github.com/barrelcollector/puzzary-official-plugins/tree/main/plugins/sudoku"
 }
 

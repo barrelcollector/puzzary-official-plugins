@@ -1,0 +1,157 @@
+{
+  "pack_id": "english-wordnet-5000-v1",
+  "target_words": 5000,
+  "existing_words": 415,
+  "pack_words": 4985,
+  "new_words": 4585,
+  "definitions": 11819,
+  "multi_definition_words": 3893,
+  "topics": {
+    "Actions": 873,
+    "Anatomy": 156,
+    "Animals": 102,
+    "Art": 26,
+    "Being and Having": 167,
+    "Buildings and Home": 95,
+    "Change": 170,
+    "Clothing": 46,
+    "Communication": 1039,
+    "Descriptions": 2955,
+    "Eating and Consumption": 31,
+    "Emotions": 70,
+    "Events": 209,
+    "Feelings": 80,
+    "Food and Drink": 120,
+    "Games": 35,
+    "Groups": 350,
+    "Ideas and Knowledge": 667,
+    "Kitchen and Cooking": 9,
+    "Making Things": 96,
+    "Materials": 146,
+    "Money and Ownership": 321,
+    "Motivation": 6,
+    "Movement": 204,
+    "Music": 69,
+    "Natural Phenomena": 79,
+    "Nature": 138,
+    "Numbers and Measures": 144,
+    "Objects": 913,
+    "Participles": 13,
+    "People": 601,
+    "Places": 182,
+    "Plants": 85,
+    "Processes": 57,
+    "Qualities": 386,
+    "Related Adjectives": 153,
+    "Relationships": 92,
+    "Senses": 90,
+    "Shapes": 55,
+    "Social Life": 247,
+    "Space and Astronomy": 4,
+    "Sports and Competition": 62,
+    "States and Conditions": 340,
+    "Technology": 31,
+    "Time": 161,
+    "Tools and Workshop": 32,
+    "Touch and Contact": 245,
+    "Transport": 202,
+    "Weather": 14
+  },
+  "parts_of_speech": {
+    "Noun": 6639,
+    "Verb": 2095,
+    "Adjective": 2528,
+    "Adverb": 557
+  },
+  "batches": [
+    {
+      "file": "words-01.json",
+      "sha256": "285890b66b8e09a723ae7b4a20abfe7a939faeac61b433669c391953afbbedf9"
+    },
+    {
+      "file": "words-02.json",
+      "sha256": "da31fad6c49be2323dcfd9c11aec8cf8b0bab415d7b9534dbee4258b13ff452c"
+    },
+    {
+      "file": "words-03.json",
+      "sha256": "da3a5df17247dcbf29430cf5c16e8f881e1092f24a7d476065d0cd0bff99c4fe"
+    },
+    {
+      "file": "words-04.json",
+      "sha256": "1b87949ed9e30620e90bcdafdcdb13e0b2f36a114f57d340bd28dba3d571a733"
+    },
+    {
+      "file": "words-05.json",
+      "sha256": "1fb6b576b6a538b12f3f841ebe2fb47d0e0ec35ce5cf5e890151544917eff191"
+    },
+    {
+      "file": "words-06.json",
+      "sha256": "c78f58c6f19628397dec3f07e01f732c3efa2bbe8259e3a189343436d54e4c99"
+    },
+    {
+      "file": "words-07.json",
+      "sha256": "9a9edab810af56ba0565ec272e2393f6e014e079ce67d6af278ddaf8a68dcb6e"
+    },
+    {
+      "file": "words-08.json",
+      "sha256": "29a000665304ffa23bd9cbc7b7e22b86c7d8a8b8bb17ef4ef21ab8ce4fad28df"
+    },
+    {
+      "file": "words-09.json",
+      "sha256": "32ed0a45cafe18d2333f9da6150c859ef491b965fb17355616a1e78fc588d9bd"
+    },
+    {
+      "file": "words-10.json",
+      "sha256": "331edec6e59920e9790ff59df1394c0a33a7601062a755ca28a584db3ef43b64"
+    },
+    {
+      "file": "words-11.json",
+      "sha256": "7b98e2ab5170847d39bd71af68ebbc93bffda1822176dafde9f8f6fa743b67c0"
+    },
+    {
+      "file": "words-12.json",
+      "sha256": "0f1ab0dbc08f732369f37963fddc85df5ace8a1593e549ce405986929d794789"
+    },
+    {
+      "file": "words-13.json",
+      "sha256": "dc411d877c106a80bb6c148a9eaf00243bd97fe6f48158c6bd2cb82335c6671b"
+    },
+    {
+      "file": "words-14.json",
+      "sha256": "ffe0caa577c79e73634e3e76cb2c308a1f466ccbc9b05a1dfc0ee1a60e3418ee"
+    },
+    {
+      "file": "words-15.json",
+      "sha256": "b9424771fd33b50f498dc21a8a5090852657cff4c987fcf75df865c26f44c57c"
+    },
+    {
+      "file": "words-16.json",
+      "sha256": "2644111bba40eaf18128350648bf39c2d62ff80d1b55f57ce8def8e0a22bd16e"
+    },
+    {
+      "file": "words-17.json",
+      "sha256": "2ff99cf1b6b532419ebdedf3ae30547b945d3e828e27050f274282697e2ef38e"
+    },
+    {
+      "file": "words-18.json",
+      "sha256": "b509c1743a162b29f8500770240a56f240b2315d0040c4a763dfe65d9faecc5a"
+    },
+    {
+      "file": "words-19.json",
+      "sha256": "6ab0d569754ba49b8a1827c71203764c388f1fa9cb4da64fde41a6f9fa6b4a29"
+    },
+    {
+      "file": "words-20.json",
+      "sha256": "d73fe9bc44e0b4133e1a56083d80428b7bf4456c80f7ecc734ba907483b63a85"
+    }
+  ],
+  "license": "CC-BY-SA-4.0; definitions also retain WordNet license",
+  "sources": {
+    "definitions": "Princeton WordNet 3.0",
+    "selection": "wordfreq 3.1.1 English large"
+  },
+  "wordfreq_sdist_sha256": "7943098975f25c2a70e1151ee5a62083b14a5f86f6cc5703cc9526f716ceb408",
+  "wordfreq_notice_commit": "912caf64b657478d1dff1138efdc078947d54bb1",
+  "nltk_version": "3.10.3",
+  "content_review": "Automated screening, not individual human review"
+}

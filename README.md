@@ -17,9 +17,15 @@ browser assets.
 - Takuzu (`plugins/takuzu`)
 - Word Pyramid (`plugins/word_pyramid`)
 - Word Search (`plugins/word_search`)
+- English Dictionary Content (`plugins/dictionary_content`)
 
-Each package retains the built-in type's stable slug and payload contract, so it
-can replace the bundled implementation without invalidating saved puzzles.
+Puzzle packages retain the established type's stable slug and payload contract,
+so installing them does not invalidate saved puzzles. Core contains no bundled
+fallback implementation: an unavailable module is reported explicitly.
+
+`dictionary_content` is a content-only package. It owns the English WordNet
+content pack, licenses, documentation, and reproducible maintenance tools rather
+than registering a puzzle type.
 
 ## Install
 
@@ -44,8 +50,8 @@ Run `python scripts/build.py` to validate packages and create release ZIPs in
 ## Compatibility
 
 Official plugin release 0.1.1 targets Puzzary plugin API version 1 and the
-Puzzary 0.1.0 public beta line. Each archive can replace the corresponding
-bundled fallback without changing saved puzzle slugs or payload contracts.
+Puzzary 0.1.0 public beta line. Each puzzle archive preserves the corresponding
+stable puzzle slug and payload contract.
 
 ## License
 
