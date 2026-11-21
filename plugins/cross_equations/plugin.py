@@ -427,6 +427,11 @@ def normalize_progress(payload: Any, solution_payload: dict) -> dict:
     return {"answers": {key: value for key, value in supplied.items() if key not in givens}}
 
 
+def offline_solution_state(solution_payload: dict) -> dict:
+    givens = {str(key) for key in solution_payload.get("givens", {})}
+    return {"answers": {key: value for key, value in expected_answers(solution_payload).items() if key not in givens}}
+
+
 def count_progress(progress_payload: dict, solution_payload: dict) -> tuple[int, int]:
     expected = expected_answers(solution_payload)
     givens = {str(key): str(value) for key, value in solution_payload.get("givens", {}).items()}
@@ -747,7 +752,7 @@ register_puzzle_type(
         preview_builder=build_preview,
         description="A crossing arithmetic grid where rows and columns share number cells.",
         play_script="/plugins/cross_equations/static/cross-equations.js?v=8",
-        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Progress works offline; checking requires a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
+        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_validation": "solution_hash", "offline_solution_state": offline_solution_state, "offline_notes": "Progress and whole-puzzle checking work offline."} if "offline_solution_state" in PuzzleType.__dataclass_fields__ else {}),
         supports_print=True,
         supports_web_play=True,
         theme_mode="none",
