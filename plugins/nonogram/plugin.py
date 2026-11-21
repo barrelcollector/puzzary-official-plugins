@@ -189,6 +189,8 @@ register_puzzle_type(PuzzleType(
     collaboration=cell_collaboration(normalize_progress),
     generator=generate, source_builder=lambda *_: {}, answer_checker=check_answer,
     progress_normalizer=normalize_progress, progress_counter=count_progress, theme_mode="none",
+    play_script="/plugins/nonogram/static/nonogram.js?v=9",
+    **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Cell marks work offline; completion checks require a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
     print_layout=PrintLayout(slug="nonogram", sheet_class="print-layout-nonogram"),
     generation_fields=(
         GenerationField("grid_size", "Grid size", "number", "10", minimum=5, maximum=15),

@@ -95,7 +95,7 @@
   }
   async function save() {
     if (window.PuzzaryGroup) { window.PuzzaryGroup.save(); return; }
-    if (progressiveEnabled) { await remote?.action('patch'); return; }
+    if (progressiveEnabled && navigator.onLine) { await remote?.action('patch'); return; }
     fetch(progressUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({answers:answers()})}).catch(() => { status.textContent='Progress could not be saved.'; });
   }
   function queueSave() {
@@ -126,8 +126,14 @@
     input.addEventListener('input',()=>{set(input,input.value);if(input.value)move(input,1,0);});
     input.addEventListener('keydown',event=>{ if(event.altKey||event.ctrlKey||event.metaKey)return; if(new RegExp(`^[1-${size}]$`).test(event.key)){event.preventDefault();set(input,event.key);if(!input.readOnly)move(input,1,0);} else if(event.key==='Backspace'){event.preventDefault();if(input.value)set(input,'');else move(input,-1,0);} else if(event.key==='Delete'||event.key==='0'){event.preventDefault();set(input,'');} else if(event.key==='ArrowRight'){event.preventDefault();move(input,1,0);} else if(event.key==='ArrowLeft'){event.preventDefault();move(input,-1,0);} else if(event.key==='ArrowDown'){event.preventDefault();move(input,0,1);} else if(event.key==='ArrowUp'){event.preventDefault();move(input,0,-1);} });
   });
-  document.getElementById('sudoku-check')?.addEventListener('click',()=>root.dataset.checkMode==='none' ? status.textContent='Checking is off for this puzzle.' : remote?.action('check'));
-  document.getElementById('sudoku-check-units')?.addEventListener('click',()=>remote?.action('progressive_check'));
+  function offlineCheck() {
+    const bad=conflicts(), complete=inputs.every(input => Boolean(input.value.trim()));
+    inputs.forEach(input => input.closest('.sudoku-cell').classList.toggle('incorrect',bad.has(input.dataset.key)));
+    status.textContent = bad.size ? 'Resolve the highlighted rule conflicts.' : complete ? 'Grid satisfies all Sudoku rules. Server confirmation is pending.' : 'No rule conflicts found. Complete every cell to finish.';
+    save();
+  }
+  document.getElementById('sudoku-check')?.addEventListener('click',()=>root.dataset.checkMode==='none' ? status.textContent='Checking is off for this puzzle.' : navigator.onLine ? remote?.action('check') : offlineCheck());
+  document.getElementById('sudoku-check-units')?.addEventListener('click',()=>navigator.onLine ? remote?.action('progressive_check') : offlineCheck());
   document.getElementById('sudoku-clear')?.addEventListener('click',()=>{inputs.forEach(i=>{if(!i.disabled&&!i.readOnly)i.value='';i.closest('.sudoku-cell').classList.remove('correct','incorrect');});status.textContent='Grid cleared.';save();});
   document.getElementById('reveal-solution')?.addEventListener('click',()=>remote?.action('reveal'));
 })();
