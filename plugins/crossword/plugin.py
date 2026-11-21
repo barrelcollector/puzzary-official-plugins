@@ -265,6 +265,19 @@ def normalize_progress(payload: Any, solution_payload: dict) -> dict:
     }
 
 
+def offline_solution_state(solution_payload: dict) -> dict:
+    gimme_cells = solution_payload.get("gimmes", {}).get("cells", {})
+    if not isinstance(gimme_cells, dict):
+        gimme_cells = {}
+    answers = {}
+    for y, row in enumerate(solution_payload.get("grid", [])):
+        for x, value in enumerate(row):
+            key = f"{x},{y}"
+            if value and key not in gimme_cells:
+                answers[key] = str(value).strip().upper()[:1]
+    return {"answers": answers}
+
+
 def count_progress(progress_payload: dict, solution_payload: dict) -> tuple[int, int]:
     answers = progress_payload.get("answers", {})
     if not isinstance(answers, dict):
@@ -676,7 +689,7 @@ register_puzzle_type(
         preview_builder=build_preview,
         description="A clue-driven crossword built from dictionary definitions.",
         play_script="/plugins/crossword/static/crossword.js?v=16",
-        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Grid entries work offline; answer checks and reveals require a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
+        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_validation": "solution_hash", "offline_solution_state": offline_solution_state, "offline_notes": "Grid entries and whole-puzzle checking work offline; reveals require a connection."} if "offline_solution_state" in PuzzleType.__dataclass_fields__ else {}),
         supports_print=True,
         supports_web_play=True,
         source_requirements=("word_bank", "definitions"),

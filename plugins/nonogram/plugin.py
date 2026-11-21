@@ -103,6 +103,16 @@ def normalize_progress(payload, solution):
     return {"answers": {k: v for k, v in answers.items() if k not in solution.get("givens", {})}}
 
 
+def offline_solution_state(solution):
+    givens = solution.get("givens", {}) if isinstance(solution.get("givens", {}), dict) else {}
+    return {"answers": {
+        f"{x},{y}": "1"
+        for y, row in enumerate(solution.get("grid", []))
+        for x, value in enumerate(row)
+        if value == 1 and f"{x},{y}" not in givens
+    }}
+
+
 def count_progress(progress, solution):
     answers = {**answers_from(progress, solution), **solution.get("givens", {})}
     grid = solution.get("grid", [])
@@ -190,7 +200,7 @@ register_puzzle_type(PuzzleType(
     generator=generate, source_builder=lambda *_: {}, answer_checker=check_answer,
     progress_normalizer=normalize_progress, progress_counter=count_progress, theme_mode="none",
     play_script="/plugins/nonogram/static/nonogram.js?v=9",
-    **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Cell marks work offline; completion checks require a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
+    **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_validation": "solution_hash", "offline_solution_state": offline_solution_state, "offline_hash_mode": "filled_cells", "offline_notes": "Cell marks and whole-puzzle checking work offline."} if "offline_solution_state" in PuzzleType.__dataclass_fields__ else {}),
     print_layout=PrintLayout(slug="nonogram", sheet_class="print-layout-nonogram"),
     generation_fields=(
         GenerationField("grid_size", "Grid size", "number", "10", minimum=5, maximum=15),

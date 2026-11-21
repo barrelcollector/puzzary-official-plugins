@@ -259,6 +259,14 @@ def normalize_progress(payload: Any, solution_payload: dict) -> dict:
     return {"answers": normalized}
 
 
+def offline_solution_state(solution_payload: dict) -> dict:
+    return {"answers": {
+        str(index): str(row.get("answer", "")).upper()
+        for index, row in enumerate(solution_payload.get("rows", []))
+        if not row.get("gimme")
+    }}
+
+
 def count_progress(progress_payload: dict, solution_payload: dict) -> tuple[int, int]:
     answers = progress_payload.get("answers", {})
     if not isinstance(answers, dict):
@@ -502,7 +510,7 @@ register_puzzle_type(
         preview_builder=build_preview,
         description="A clue-driven chain where each answer grows by one letter.",
         play_script="/plugins/word_pyramid/static/word-pyramid.js?v=5",
-        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Row entries work offline; answer checks and extra clues require a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
+        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_validation": "solution_hash", "offline_solution_state": offline_solution_state, "offline_notes": "Row entries and whole-puzzle checking work offline; extra clues require a connection."} if "offline_solution_state" in PuzzleType.__dataclass_fields__ else {}),
         supports_print=True,
         supports_web_play=True,
         source_requirements=("word_bank", "definitions"),
