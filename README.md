@@ -43,6 +43,11 @@ plugin API version `1`. The entrypoint registers exactly one `PuzzleType` whose
 slug matches the manifest. Template folders use the same `puzzle_types/`,
 `puzzle_solutions/`, and `puzzle_print/` paths as core.
 
+Puzzle types may opt in to solo offline play with `supports_offline`, list the
+serializable progress fields they can safely queue, and declare whether checks
+use only public local rules or require the server. Offline packages must never
+move solution payloads into play payloads; Group Solve remains online-only.
+
 Run `python scripts/build.py` to validate packages and create release ZIPs in
 `dist/`. Builds are deterministic. Every ZIP contains Apache-2.0 `LICENSE` and
 `NOTICE` files, and `dist/SHA256SUMS` records all archive digests.

@@ -676,6 +676,7 @@ register_puzzle_type(
         preview_builder=build_preview,
         description="A clue-driven crossword built from dictionary definitions.",
         play_script="/plugins/crossword/static/crossword.js?v=16",
+        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Grid entries work offline; answer checks and reveals require a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
         supports_print=True,
         supports_web_play=True,
         source_requirements=("word_bank", "definitions"),

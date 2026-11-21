@@ -170,6 +170,8 @@ register_puzzle_type(PuzzleType(slug='takuzu',label='Takuzu / Binairo',descripti
     collaboration=cell_collaboration(normalize_progress),
     generator=generate,source_builder=lambda *_:{},answer_checker=check_answer,progress_normalizer=normalize_progress,
     progress_counter=count_progress,theme_mode='none',print_layout=PrintLayout(slug='takuzu',sheet_class='print-layout-takuzu'),
+    play_script='/plugins/takuzu/static/takuzu.js?v=6',
+    **({'supports_offline':True,'offline_progress_fields':('answers',),'offline_validation':'local_rules','offline_notes':'Completed grids can be checked against Takuzu rules offline; the server confirms completion after sync.'} if 'supports_offline' in PuzzleType.__dataclass_fields__ else {}),
     generation_fields=(GenerationField('grid_size','Grid size','select','6',options=tuple({'value':str(n),'label':f'{n}x{n}'} for n in (4,6,8,10))),starter_field,confirm_field),
     manual_builder=build_manual,manual_editor_script='/plugins/takuzu/static/takuzu-editor.js?v=1',
     manual_editor_fields=(GenerationField('solution_grid','Solution grid','textarea',required=True,help_text='A valid, even square grid of 0 and 1, from 4x4 to 10x10.'),starter_field,confirm_field)))

@@ -502,6 +502,7 @@ register_puzzle_type(
         preview_builder=build_preview,
         description="A clue-driven chain where each answer grows by one letter.",
         play_script="/plugins/word_pyramid/static/word-pyramid.js?v=5",
+        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Row entries work offline; answer checks and extra clues require a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
         supports_print=True,
         supports_web_play=True,
         source_requirements=("word_bank", "definitions"),

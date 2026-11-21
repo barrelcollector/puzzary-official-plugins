@@ -747,6 +747,7 @@ register_puzzle_type(
         preview_builder=build_preview,
         description="A crossing arithmetic grid where rows and columns share number cells.",
         play_script="/plugins/cross_equations/static/cross-equations.js?v=8",
+        **({"supports_offline": True, "offline_progress_fields": ("answers",), "offline_notes": "Progress works offline; checking requires a connection."} if "supports_offline" in PuzzleType.__dataclass_fields__ else {}),
         supports_print=True,
         supports_web_play=True,
         theme_mode="none",
