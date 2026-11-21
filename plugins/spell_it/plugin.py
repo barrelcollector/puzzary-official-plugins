@@ -5,8 +5,16 @@ import random
 import re
 from collections import Counter
 from types import SimpleNamespace
+from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy import select
+from app.activity_events import record_progress_transition, record_puzzle_event
+from app.database import get_db
+from app.models import Puzzle, PuzzleAttempt, User
+from app.permissions import can_view, register_route_permission, require
 from app.puzzles import GeneratedPuzzle, GenerationField, PrintLayout, PuzzleType, register_puzzle_type
-from app.spell_it_api import router
+
+router = APIRouter()
+register_route_permission("spell_it_preview", "puzzles.create")
 
 DIFFICULTIES = {"very_easy": 18, "easy": 30, "medium": 45, "hard": 65, "expert": 80}
 BANK_MODES = ("default", "off", "exact", "decoy", "hint_triggered")
@@ -236,6 +244,151 @@ def collaboration(progress, action, solution):
     result['letter_banks'] = [e['bank'] if e['settings']['letter_bank'] in ('exact', 'decoy') or result['answers'].get(f"bank:{e['index']}") == '1' else [] for e in entries]
     result['hints_remaining'] = [max(0, e['settings']['hint_limit'] - len(ledger(result['answers'], e))) for e in entries]
     return result
+
+
+def core():
+    from app import main
+    return main
+
+
+async def request_body(request, limit=64000):
+    raw = await request.body()
+    if len(raw) > limit:
+        raise HTTPException(413, "Request too large")
+    try:
+        payload = json.loads(raw)
+    except (ValueError, RecursionError):
+        raise HTTPException(422, "Invalid JSON")
+    if not isinstance(payload, dict):
+        raise HTTPException(422, "Expected a JSON object")
+    return payload
+
+
+def request_context(puzzle_id, request, db):
+    user = core().require_api_user(request, db)
+    require(user, "puzzles.play")
+    puzzle = db.get(Puzzle, puzzle_id)
+    if not puzzle or puzzle.puzzle_type != "spell_it":
+        raise HTTPException(404, "Spell It puzzle not found")
+    if not core().is_puzzle_type_enabled(db, "spell_it"):
+        raise HTTPException(400, "Spell It is disabled")
+    if not can_view(user, puzzle, play=True):
+        raise HTTPException(403, "Puzzle access denied")
+    if not getattr(user, "is_guest_link", False):
+        db.scalar(select(User).where(User.id == user.id).with_for_update())
+    progress = core().progress_record_for_user(db, puzzle, user, create=True)
+    return user, puzzle, progress
+
+
+def progress_response(puzzle, progress):
+    answers = (progress.progress_payload or {}).get("answers", {})
+    entries = puzzle.solution_payload["entries"]
+    return {
+        "answers": answers,
+        "states": [state(entry, answers) for entry in entries],
+        "letter_banks": [
+            entry["bank"]
+            if entry["settings"]["letter_bank"] in ("exact", "decoy")
+            or answers.get(f"bank:{entry['index']}") == "1"
+            else []
+            for entry in entries
+        ],
+        "hints_remaining": [
+            max(0, entry["settings"]["hint_limit"] - len(ledger(answers, entry)))
+            for entry in entries
+        ],
+    }
+
+
+@router.post("/api/spell-it/editor-preview", name="spell_it_preview")
+async def editor_preview(request: Request, db=Depends(get_db)):
+    core().require_api_user(request, db)
+    if not core().is_puzzle_type_enabled(db, "spell_it"):
+        raise HTTPException(400, "Spell It is disabled")
+    payload = await request_body(request, 512000)
+    try:
+        built = manual(payload)
+    except (ValueError, TypeError) as error:
+        raise HTTPException(422, str(error))
+    return {"play_payload": built.play_payload, "solution_payload": built.solution_payload}
+
+
+@router.get("/api/puzzles/{puzzle_id}/spell-it/progress")
+def read_spell_progress(puzzle_id: str, request: Request, db=Depends(get_db)):
+    _, puzzle, progress = request_context(puzzle_id, request, db)
+    return progress_response(puzzle, progress)
+
+
+@router.post("/api/puzzles/{puzzle_id}/spell-it/attempts")
+async def check_spell_entry(puzzle_id: str, request: Request, db=Depends(get_db)):
+    payload = await request_body(request)
+    user, puzzle, progress = request_context(puzzle_id, request, db)
+    answers = payload.get("answers", {})
+    if not isinstance(answers, dict):
+        raise HTTPException(422, "Answers must be an object")
+    before = dict(progress.progress_payload or {})
+    progress.progress_payload = merge_progress(SimpleNamespace(answers=answers), puzzle.solution_payload, before)
+    matched, expected = count_progress(progress.progress_payload, puzzle.solution_payload)
+    if not getattr(user, "is_guest_link", False):
+        db.add(PuzzleAttempt(
+            puzzle_id=puzzle.id,
+            user_id=user.id,
+            answer=json.dumps(progress.progress_payload["answers"]),
+            is_correct=matched == expected,
+        ))
+        record_puzzle_event(db, puzzle.id, user.id, "attempt", {
+            "is_correct": matched == expected,
+            "matched_count": matched,
+            "expected_count": expected,
+        })
+        record_progress_transition(db, puzzle, user.id, core().get_puzzle_type(puzzle.puzzle_type), before, progress.progress_payload)
+    db.commit()
+    return {
+        **progress_response(puzzle, progress),
+        "completed": matched == expected,
+        "matched_count": matched,
+        "expected_count": expected,
+    }
+
+
+@router.post("/api/puzzles/{puzzle_id}/spell-it/hint")
+async def spell_hint(puzzle_id: str, request: Request, db=Depends(get_db)):
+    payload = await request_body(request)
+    user, puzzle, progress = request_context(puzzle_id, request, db)
+    index = payload.get("entry", 0)
+    entries = puzzle.solution_payload["entries"]
+    if type(index) is not int or not 0 <= index < len(entries):
+        raise HTTPException(422, "Invalid entry")
+    entry = entries[index]
+    supplied = payload.get("answers", {})
+    if not isinstance(supplied, dict):
+        raise HTTPException(422, "Answers must be an object")
+    normalized = merge_progress(SimpleNamespace(answers=supplied), puzzle.solution_payload, progress.progress_payload or {})
+    answers = normalized["answers"]
+    if payload.get("kind") == "bank":
+        if entry["settings"]["letter_bank"] != "hint_triggered":
+            raise HTTPException(400, "This entry has no hint-triggered bank")
+        answers[f"bank:{index}"] = "1"
+    else:
+        used = ledger(answers, entry)
+        if len(used) >= entry["settings"]["hint_limit"]:
+            raise HTTPException(400, "No letter hints remain")
+        positions = [
+            position for position in entry["hidden"]
+            if position not in used and answers.get(f"{index}:{position}") != entry["answer"][position]
+        ]
+        if not positions:
+            raise HTTPException(400, "All missing letters are already correct")
+        position = random.SystemRandom().choice(positions)
+        answers[f"hint:{index}"] = ",".join(map(str, [*used, position]))
+        answers[f"{index}:{position}"] = entry["answer"][position]
+    progress.progress_payload = normalize_progress(SimpleNamespace(answers=answers), puzzle.solution_payload)
+    if not getattr(user, "is_guest_link", False):
+        record_puzzle_event(db, puzzle.id, user.id, "hint", {
+            "target": f"entry:{index}:{payload.get('kind') or 'letter'}",
+        })
+    db.commit()
+    return progress_response(puzzle, progress)
 
 
 FIELDS = (
