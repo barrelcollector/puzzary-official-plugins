@@ -793,6 +793,16 @@ def generate(
     )
 
 
+offline_options = {}
+if "offline_game_data" in PuzzleType.__dataclass_fields__:
+    offline_options = {
+        "supports_offline": True,
+        "offline_progress_fields": ("found_words",),
+        "offline_notes": "Selections are checked from the downloaded grid and word list; hints and solution reveal still require a connection.",
+        "offline_validation": "local_rules",
+    }
+
+
 register_puzzle_type(
     PuzzleType(
         slug="word_search",
@@ -805,7 +815,7 @@ register_puzzle_type(
         collaboration=collaboration,
         preview_builder=build_preview,
         description="A printable and interactive word-search grid.",
-        play_script="/plugins/word_search/static/word-search.js?v=16",
+        play_script="/plugins/word_search/static/word-search.js?v=17",
         supports_print=True,
         supports_web_play=True,
         source_requirements=("word_bank",),
@@ -1077,5 +1087,6 @@ register_puzzle_type(
                 ),
             ),
         ),
+        **offline_options,
     )
 )
