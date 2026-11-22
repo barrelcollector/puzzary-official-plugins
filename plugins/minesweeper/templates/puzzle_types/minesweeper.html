@@ -1,7 +1,8 @@
 <p>{{ puzzle.prompt }}</p>
 <div class="minesweeper-play"
      data-width="{{ play_payload.width }}" data-height="{{ play_payload.height }}"
-     data-mines="{{ play_payload.mine_count }}" data-state='{{ progress_payload | tojson }}'>
+     data-mines="{{ play_payload.mine_count }}" data-state='{{ progress_payload | tojson }}'
+     data-progress-url="/api/puzzles/{{ puzzle.id }}/progress">
   <div class="minesweeper-toolbar" role="group" aria-label="Minesweeper tools">
     <button type="button" data-tool="reveal" aria-pressed="true">Reveal</button>
     <button type="button" class="ghost-button" data-tool="flag" aria-pressed="false">Flag</button>

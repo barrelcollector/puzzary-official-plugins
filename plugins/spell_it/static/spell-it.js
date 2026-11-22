@@ -2,6 +2,7 @@
   const root = document.querySelector('.spell-it-play');
   if (!root) return;
   const entries = JSON.parse(root.querySelector('.spell-data').textContent).entries;
+  const offline = Boolean(document.body.dataset.offlinePuzzleId);
   const stage = root.querySelector('.spell-stage'), nav = root.querySelector('.spell-navigation'), status = root.querySelector('.spell-status');
   let current = 0, answers = {}, states = entries.map(() => 'incomplete'), banks = entries.map(e => e.bank), remaining = entries.map(e => e.settings.hint_limit);
   let timer, busy = false, chain = Promise.resolve(), revision = 0, savedRevision = 0, ready = false, focusedPosition = null;
@@ -111,6 +112,18 @@
   async function request(kind, payload) {
     if (window.PuzzaryGroup) return window.PuzzaryGroup.action(kind === 'attempts' ? 'check' : 'hint',payload.kind === 'bank' ? `bank:${current}` : String(current));
     if (busy || !ready) return;
+    if (offline) {
+      if (kind !== 'attempts') { message('Hints need a connection.'); return; }
+      const entry = entries[current];
+      if (entry.hidden.some(position => !answers[`${current}:${position}`])) { states[current] = 'incomplete'; message('Complete the missing letters first.'); draw(); return; }
+      const entryAnswers = Object.fromEntries(entry.hidden.map(position => [`${current}:${position}`, answers[`${current}:${position}`] || '']));
+      const result = await window.PuzzaryOfflineCheck?.({answers: entryAnswers}, String(current));
+      states[current] = result?.correct ? 'correct' : 'incorrect';
+      message(result?.correct ? 'Correct.' : 'Not quite. Try another spelling.');
+      if (result?.correct && !completed.has(current)) { completed.add(current); window.PuzzarySounds?.progress(); }
+      if (states.every(value => value === 'correct')) { message('Spell It complete.'); window.PuzzaryCelebrate?.complete(); }
+      await save(); draw(); return;
+    }
     busy = true; draw();
     try {
       await save();
@@ -179,6 +192,18 @@
         if (data.checked) message(states[current] === 'correct' ? 'Correct.' : states[current] === 'incorrect' ? 'Not quite. Try another spelling.' : 'Complete the missing letters first.');
       }
     });
+    return;
+  }
+  if (offline) {
+    try { answers = JSON.parse(document.getElementById('puzzary-offline-progress')?.textContent || '{}').answers || {}; } catch (_error) {}
+    ready = true;
+    Promise.all(entries.map(async (entry, index) => {
+      if (entry.hidden.some(position => !answers[`${index}:${position}`])) return;
+      const entryAnswers = Object.fromEntries(entry.hidden.map(position => [`${index}:${position}`, answers[`${index}:${position}`] || '']));
+      const result = await window.PuzzaryOfflineCheck?.({answers: entryAnswers}, String(index));
+      if (result?.correct) { states[index] = 'correct'; completed.add(index); }
+    })).then(() => { const unfinished = states.findIndex(value => value !== 'correct'); current = unfinished < 0 ? entries.length - 1 : unfinished; draw(); if (unfinished < 0) message('Spell It complete.'); });
+    draw();
     return;
   }
   fetch(`${root.dataset.api}/progress`).then(async response => { if (!response.ok) throw new Error('Progress could not be loaded.'); return response.json(); }).then(data => {

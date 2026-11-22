@@ -199,6 +199,23 @@ def check_answer(answer, solution):
     return matched == len(entries) and len(value) == len(entries) and bool(entries), len(entries), matched
 
 
+def offline_solution_state(solution):
+    return {"answers": {
+        f"{entry['index']}:{position}": entry["answer"][position]
+        for entry in solution.get("entries", []) for position in entry.get("hidden", [])
+    }}
+
+
+def offline_solution_parts(solution):
+    return {
+        str(entry["index"]): {"answers": {
+            f"{entry['index']}:{position}": entry["answer"][position]
+            for position in entry.get("hidden", [])
+        }}
+        for entry in solution.get("entries", [])
+    }
+
+
 def preview(print_payload, play_payload, metadata):
     # Uses the generic library fallback; no hidden answer in preview metadata.
     return {"kind": "fallback", "label": "Spell It!", "icon": "Aa", "meta": f"{len(play_payload.get('entries', []))} entries"}
@@ -399,6 +416,16 @@ FIELDS = (
     GenerationField("decoy_count", "Extra letters (Decoy bank)", "number", 3, minimum=0, maximum=20, enabled_when=(("letter_bank", "decoy"),)),
     GenerationField("hint_limit", "Letter hints per entry", "number", 1, minimum=0, maximum=20),
 )
+offline_options = {}
+if "offline_solution_parts" in PuzzleType.__dataclass_fields__:
+    offline_options = {
+        "supports_offline": True,
+        "offline_progress_fields": ("answers",),
+        "offline_notes": "Each word is checked offline with a salted answer commitment; hints still require a connection.",
+        "offline_validation": "solution_hash",
+        "offline_solution_state": offline_solution_state,
+        "offline_solution_parts": offline_solution_parts,
+    }
 register_puzzle_type(PuzzleType(
     slug="spell_it", label="Spell It!", generator=generate, source_builder=build_source,
     answer_checker=check_answer, progress_normalizer=normalize_progress,
@@ -416,7 +443,8 @@ register_puzzle_type(PuzzleType(
         *FIELDS, GenerationField("seed", "Mask seed", default="manual-spell-it"),
     ),
     manual_builder=manual, manual_editor_script="/plugins/spell_it/static/spell-it-editor.js?v=2",
-    play_script="/plugins/spell_it/static/spell-it.js?v=2", router=router, preview_builder=preview,
+    play_script="/plugins/spell_it/static/spell-it.js?v=3", router=router, preview_builder=preview,
     private_metadata_keys=("manual_editor_options",), supports_solution_reveal=False,
     print_layout=PrintLayout(slug="spell_it", sheet_class="print-layout-spell-it", instructions="Fill the missing letters."),
+    **offline_options,
 ))

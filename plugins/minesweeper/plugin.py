@@ -170,6 +170,21 @@ def normalize_progress(_payload, _solution):
     return {"answers": {}, "status": "playing", "exploded": ""}
 
 
+def normalize_offline_progress(payload, solution):
+    return clean_state({"answers": getattr(payload, "answers", {}) or {}}, solution)
+
+
+def offline_game_data(solution):
+    width, height, mines, _valid = board(solution)
+    settings = solution.get("settings", {}) if isinstance(solution.get("settings"), dict) else {}
+    return {
+        "width": width,
+        "height": height,
+        "mines": sorted(mines),
+        "open_connected_safe_spaces": settings.get("open_connected_safe_spaces", True) is not False,
+    }
+
+
 def count_progress(progress, solution):
     state = clean_state(progress if isinstance(progress, dict) else {}, solution)
     _width, _height, mines, valid = board(solution)
@@ -223,6 +238,18 @@ def generate(_theme, _difficulty, source_data=None, seed=None, generation_option
     )
 
 
+offline_options = {}
+if "offline_game_data" in PuzzleType.__dataclass_fields__:
+    offline_options = {
+        "supports_offline": True,
+        "offline_progress_fields": ("answers",),
+        "offline_notes": "The downloaded copy includes this board's mine layout so every reveal can run without a connection. Disable offline play on puzzles that must keep the board private.",
+        "offline_validation": "local_rules",
+        "offline_game_data": offline_game_data,
+        "offline_progress_normalizer": normalize_offline_progress,
+    }
+
+
 register_puzzle_type(PuzzleType(
     slug="minesweeper", label="Minesweeper",
     description="Reveal safe cells, read adjacent-mine counts, and flag every mine.",
@@ -237,5 +264,6 @@ register_puzzle_type(PuzzleType(
                         help_text="When a revealed space has no adjacent mines, open its connected clear area and numbered boundary.",
                         options=({"value": "yes", "label": "On"}, {"value": "no", "label": "Off"})),
     ),
-    play_script="/plugins/minesweeper/static/minesweeper.js?v=1",
+    play_script="/plugins/minesweeper/static/minesweeper.js?v=2",
+    **offline_options,
 ))

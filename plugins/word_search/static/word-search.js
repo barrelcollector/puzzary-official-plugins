@@ -11,6 +11,7 @@
   const words = new Set((grid.dataset.words || "").split(",").map((word) => word.trim().toUpperCase()).filter(Boolean));
   const found = new Set((grid.dataset.foundWords || "").split(",").map((word) => word.trim().toUpperCase()).filter(Boolean));
   const progressUrl = grid.dataset.progressUrl;
+  const offline = Boolean(document.body.dataset.offlinePuzzleId);
   const autoConfirm = grid.dataset.autoConfirm !== "false";
   const penaltyMode = grid.dataset.penaltyMode || "none";
   const penaltyScope = grid.dataset.penaltyScope || "individual";
@@ -98,7 +99,7 @@
 
   function saveProgress() {
     if (window.PuzzaryGroup) { window.PuzzaryGroup.save(); return; }
-    if (window.PuzzarySolo) { window.PuzzarySolo.action('patch'); return; }
+    if (window.PuzzarySolo && !offline) { window.PuzzarySolo.action('patch'); return; }
     if (!progressUrl) return;
     window.fetch(progressUrl, {
       method: "POST",
@@ -261,7 +262,7 @@
   }
 
   function checkGuesses() {
-    if (remote) { remote.action('check'); return; }
+    if (remote && !offline) { remote.action('check'); return; }
     if (!guesses.length) {
       if (status) status.textContent = "Make one or more selections first.";
       return;
@@ -347,7 +348,7 @@
       if (status) status.textContent = "Selection was too short and was ignored without a penalty.";
       return;
     }
-    if (!autoConfirm || remote) {
+    if (!autoConfirm || (remote && !offline)) {
       addGuess();
       return;
     }
